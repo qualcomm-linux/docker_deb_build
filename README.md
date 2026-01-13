@@ -1,6 +1,13 @@
 # docker_deb_build
 
-A Python-based tool for building Debian packages inside Docker containers, designed for Qualcomm Linux projects. It supports multiple architectures (amd64, arm64) and Ubuntu versions (noble, questing) to ensure consistent and reproducible package builds.
+A Python-based tool for building Debian packages inside Docker containers, designed for Qualcomm Linux projects.
+It supports multiple architectures (amd64, arm64) and Ubuntu versions (noble, questing) to ensure consistent and reproducible package builds.
+
+This repo encompases two use cases: 
+- Builder-agnostic local builds for a users wanting to build debian packages on their local machines in a repeatable way.
+- Creating a docker image with required tooling and chroots for the different Qualcomm repo workflows.
+
+See the **Github Workflow** section below.
 
 ## Branches
 
@@ -19,15 +26,14 @@ A Python-based tool for building Debian packages inside Docker containers, desig
    git clone https://github.com/qualcomm-linux/docker_deb_build.git
    cd docker_deb_build
    ```
-
-2. Ensure Docker is running and you have permissions to build containers.
+2. Ensure Docker is running and you have permissions to build containers. The build scripts does multiple pre-flight checks
 
 ## Usage
 
 Run the `docker_deb_build.py` script to build Debian packages:
 
 ```bash
-python3 docker_deb_build.py --help
+docker_deb_build.py --help
 ```
 
 ### Key Features
@@ -45,9 +51,26 @@ The `docker/` folder contains pre-configured Dockerfiles:
 - `Dockerfile.arm64.noble`: For ARM64 builds on Ubuntu Noble.
 - `Dockerfile.arm64.questing`: For ARM64 builds on Ubuntu Questing.
 
+To add a new suite (like Trixie, Resolute, etc), copy the two Dockerfile (amd64 and arm64) for a given suite (say Questing) and tweak them to reflect the new version.
+Then, in the **docker_deb_build** script, add a new line for that suite in :
+'''
+    if args.rebuild:
+        rebuild_docker_image(image_base, build_arch, 'noble')
+        rebuild_docker_image(image_base, build_arch, 'questing')
+        <HERE>
+        sys.exit(0)
+'''
+
 ### GitHub Workflow
 
 The repository includes a `container-build-and-upload` workflow (located in `.github/workflows/`) that automates building and uploading Docker containers for package builds.
+This workflow is automatically executed every week so that the GHCR registry where the images are stored contains a one-week-or-less old image. This keeps build time as small as possible for workflows relying on those images. This is because when building using sbuild, the first step is doing an apt update; the older the image, the longer it takes doing this apt upgrade.
+
+This also applies for non-github-workflow local builds; doing a **docker_deb_build.py --rebuild** periodically ensures a recent image and reduces the apt upgrade time at the start of every build.
+
+## Adding tooling
+
+If additional tooling is required, the user shall add it in every Dockerfile found in Docker, open and merge the PR which will automatically trigger a post-merge build and upload to GHCR. Then, next time a github workflow build happens, the new tool will be present in the image hosted in GHCR.
 
 ## Development
 
@@ -62,7 +85,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 - [Report an Issue on GitHub](../../issues)
 - [Open a Discussion on GitHub](../../discussions)
-- [E-mail us](mailto:REPLACE-ME@qti.qualcomm.com) for general questions
+- [E-mail us](mailto:sbeaudoi@qti.qualcomm.com) for general questions
 
 ## License
 
