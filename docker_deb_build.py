@@ -268,11 +268,12 @@ def build_package_in_docker(image_base: str, source_dir: str, output_dir: str, b
     # The --git-builder value is a single string passed to gbp
     extra_repo_option = " ".join(f"--extra-repository='{repo}'" for repo in extra_repo) if extra_repo else ""
     lintian_option = '--no-run-lintian' if not run_lintian else ""
-    sbuild_cmd = f"sbuild --build-dir=/workspace/output --host=arm64 --build={build_arch} --dist={distro} {lintian_option} {extra_repo_option}"
+    # --no-clean-source: skip dpkg-buildpackage --clean on host (avoids build-dep check outside chroot)
+    sbuild_cmd = f"sbuild --no-clean-source --build-dir=/workspace/output --host=arm64 --build={build_arch} --dist={distro} {lintian_option} {extra_repo_option}"
 
     # Ensure git inside the container treats the mounted checkout as safe
     git_safe_cmd = "git config --global --add safe.directory /workspace/src"
-    gbp_cmd = f"{git_safe_cmd} && gbp buildpackage --git-ignore-branch --git-builder=\"{sbuild_cmd}\""
+    gbp_cmd = f"{git_safe_cmd} && gbp buildpackage --git-no-pristine-tar --git-ignore-branch --git-builder=\"{sbuild_cmd}\""
 
     # Decide which build command to run based on debian/source/format in the source tree.
     # Prefer 'native' -> run sbuild directly. If the source format uses 'quilt', use gbp.
