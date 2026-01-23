@@ -46,7 +46,7 @@ def parse_arguments() -> argparse.Namespace:
 
     parser.add_argument("--distro",
                         type=str,
-                        choices=['noble', 'questing'],
+                        choices=['noble', 'questing', 'sid'],
                         default='noble',
                         help="The target distribution for the package build.")
 
@@ -358,6 +358,7 @@ def main() -> None:
     if args.rebuild:
         rebuild_docker_image(image_base, build_arch, 'noble')
         rebuild_docker_image(image_base, build_arch, 'questing')
+        rebuild_docker_image(image_base, build_arch, 'sid')
         sys.exit(0)
 
     # Make sure source and output dirs are absolute paths
