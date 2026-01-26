@@ -32,5 +32,5 @@ RUN EXTRA_PACKAGES=$(tr -s '[:space:]' ',' < /tmp/extra-packages.txt) && \
 # Set working directory
 WORKDIR /workspace
 
-# Default command
+# Default shall
 CMD [ "bash" ]

@@ -6,16 +6,19 @@ FROM debian:sid
 # Avoid interactive prompts during apt operations
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Base tooling for Debian packaging + chroot creation
-# (eatmydata/ccache are nice QoL additions; remove if you prefer)
 RUN apt-get update && apt-get install -y \
-    ca-certificates gnupg \
-    curl git jq tree gh \
-    sbuild schroot debootstrap \
-    git-buildpackage devscripts \
-    build-essential debhelper \
+    curl \
+    git \
+    git-buildpackage \
+    sbuild \
+    schroot \
+    gh \
+    jq \
+    debootstrap \
+    tree \
+    build-essential \
+    debhelper \
     abigail-tools \
-    eatmydata ccache \
  && rm -rf /var/lib/apt/lists/*
 
 # Force sbuild to use the schroot backend.
@@ -56,7 +59,7 @@ RUN set -eux; \
       apt-get clean; rm -rf /var/lib/apt/lists/* \
     '
 
-# Workspace for mounting sources/outputs (your script already bind-mounts /workspace)
+# Set working directory
 WORKDIR /workspace
 
 # Default shell
