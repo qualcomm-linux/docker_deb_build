@@ -158,7 +158,7 @@ For whatever reason, you may have to enter the container in interactive mode. It
 Note: think about adapting the tag for your scenario (arm vs amd, and suite)
 
 ```
-docker run --rm -it --name pkg-builder-questing ghcr.io/qualcomm-linux/pkg-builder:amd64-questing bash
+docker run --rm -it --privileged -v /local/mnt/workspace/sbeaudoi/extra-repo/libdmabufheap-1.0.r1.03200:/workspace/src:Z -v /local/mnt/workspace/sbeaudoi/extra-repo/build:/workspace/output:Z -w /workspace/src --name pkg-builder-questing ghcr.io/qualcomm-linux/pkg-builder:arm64-questing bash
 ```
 
 ## Development
