@@ -370,6 +370,10 @@ def check_if_repo_up_to_date(bypass: bool) -> None:
             logger.critical("!"*80)
             if not bypass:
                 sys.exit(2)
+
+        else:
+            logger.info("The docker_deb_build repo is up to date with the remote.")
+
     except Exception as e:
         logger.warning(f"Could not check if repo is up to date: {e}")
 
