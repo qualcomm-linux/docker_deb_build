@@ -23,7 +23,7 @@ See the **Github Workflow** section below.
 
 1. Clone the repository \[in some tooling folder\]:
    ```bash
-   git clone https://github.com/qualcomm-linux/docker_deb_build.git
+   git clone https://github.com/qualcomm-linux/docker-pkg-build.git
    ```
    
 2. Ensure Docker is running and you have permissions to build containers. The build scripts does multiple pre-flight checks.
@@ -31,7 +31,7 @@ See the **Github Workflow** section below.
 
 3. Pro tip: Say you cloned this to your home folder, create a quick alias in your .bashrc file (debb == **deb**ian **b**uild:
    ```
-   alias debb="~/docker_deb_build/docker_deb_build.py"
+   alias debb="~/docker-pkg-build/docker_deb_build.py"
    ```
 
 ## First time using
@@ -55,13 +55,14 @@ You should then see the following (if you built on an X64_64 machine):
 
 ```
 $ docker image ls
-REPOSITORY                           TAG              IMAGE ID       CREATED          SIZE
-ghcr.io/qualcomm-linux/pkg-builder   amd64-noble      efc7d13f70f2   42 seconds ago   2.41GB
-ghcr.io/qualcomm-linux/pkg-builder   amd64-questing   3c037366744a   13 days ago      2.33GB
+REPOSITORY                                                                     TAG                  IMAGE ID       CREATED             SIZE
+ghcr.io/qualcomm-linux/pkg-builder                                             arm64-questing       ac7b0936a006   About an hour ago   1.32GB
+ghcr.io/qualcomm-linux/pkg-builder                                             arm64-resolute       c41a1b076a1b   About an hour ago   1.35GB
+ghcr.io/qualcomm-linux/pkg-builder                                             arm64-sid            8090ef2d71cc   About an hour ago   1.52GB
+ghcr.io/qualcomm-linux/pkg-builder                                             arm64-trixie         d00e2414b324   2 hours ago         1.47GB
+ghcr.io/qualcomm-linux/pkg-builder                                             arm64-noble          bdbf1ec3b9bf   2 hours ago         1.25GB
 ```
 
-You can see that in our case, two containers have been built: one for noble and one for questing.
-As time goes by, we will add more suites (questing, resolute, etc)
 You can see in the TAG that the containers's tag is prepended with amd64 to show that those containers
 (vs the amd64 ones) are for amd64 host to cross-compile for arm64. 
 
@@ -90,7 +91,7 @@ Head over to the [pkg-example](www.github.com/qualcomm-linux/pkg-example) page a
 Then, clone and build :
 
 ```
-alias debb=<docker_deb_build location>/docker_deb_build.py
+alias debb=<docker-pkg-build location>/docker_deb_build.py
 
 git clone git@github.com:qualcomm-linux/pkg-example.git
 
@@ -116,22 +117,7 @@ docker_deb_build.py --help
 
 ### Docker Images
 
-The `docker/` folder contains pre-configured Dockerfiles:
-- `Dockerfile.amd64.noble`: For AMD64 builds on Ubuntu Noble.
-- `Dockerfile.amd64.questing`: For AMD64 builds on Ubuntu Questing.
-- `Dockerfile.arm64.noble`: For ARM64 builds on Ubuntu Noble.
-- `Dockerfile.arm64.questing`: For ARM64 builds on Ubuntu Questing.
-
-To add a new suite (like Trixie, Resolute, etc), copy the two Dockerfile (amd64 and arm64) for a given suite (say Questing) and tweak them to reflect the new version.
-Then, in the **docker_deb_build** script, add a new line for that suite in :
-```
-    if args.rebuild:
-        rebuild_docker_image(image_base, build_arch, 'noble')
-        rebuild_docker_image(image_base, build_arch, 'questing')
-        <HERE>
-        sys.exit(0)
-```
-This will ensure that the new suite is built when running **$docker_deb_build.py --rebuild**
+To add a new suite, copy the two Dockerfile (amd64 and arm64) for a given suite (say Questing) and tweak them to reflect the new version.
 The last step is to ensure the containers (amd64 and arm64) for that suite are also pushed to GHCR as part of the **container-build-and-upload** workflow
 by adding a new line in the _.github/actions/build_container/action.yml_ in the _Push to GHCR_ step : 
 ```
@@ -150,7 +136,7 @@ This also applies for non-github-workflow local builds; doing a **docker_deb_bui
 
 ## Adding tooling
 
-If additional tooling is required, the user shall add it in every Dockerfile found in Docker, open and merge the PR which will automatically trigger a post-merge build and upload to GHCR. Then, next time a github workflow build happens, the new tool will be present in the image hosted in GHCR.
+If additional tooling is required, the user shall add it to the **Dockerfiles/base-packages.txt**, open and merge the PR which will automatically trigger a post-merge build and upload to GHCR. Then, next time a github workflow build happens, the new tool will be present in the image hosted in GHCR.
 
 ## How to enter the container
 
